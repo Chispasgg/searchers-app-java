@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="searchers" default="MAIN" basedir=".">
+
+	<property environment="env" />
+	<property name="bin.dir" location="bin" />
+	<property name="src.dir" location="src" />
+	<property name="lib.dir" location="lib" />
+	<property name="javaversion" value="1.8" />
+	<property name="version" value="0.0" />
+	<property name="main.jar" value="patita_buscadores-${version}" />
+
+	<property name="src.encoding" value="UTF-8" />
+	<property name="minimunJVMsize" value="256m" />
+	<property name="maximunJVMsize" value="12000m" />
+
+
+
+	<path id="librerias">
+		<!-- librerias de lib -->
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${bin.dir}" />
+	</path>
+
+	<target name="clean" description="Limpia">
+		<delete dir="${bin.dir}" />
+		<delete file="${bin.dir}/${main.jar}.jar" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${bin.dir}" />
+	</target>
+
+	<target name="compile" depends="prepare" description="Compila los fuentes">
+		<javac destdir="${bin.dir}" srcdir="${src.dir}" deprecation="true" fork="true" source="${javaversion}" target="${javaversion}" encoding="${src.encoding}" memoryinitialsize="${minimunJVMsize}" memorymaximumsize="${maximunJVMsize}" optimize="true" includeantruntime="false">
+			<classpath refid="librerias" />
+			<!--	<compilerarg value="-Xlint:unchecked" /> -->
+		</javac>
+
+	</target>
+
+	<target name="jar_exec" depends="compile">
+		<jar destfile="${jar.dir}/${main.jar}.jar">
+			<zipgroupfileset dir="${lib.dir}" includes="*.jar" excludes="" />
+			<!--
+			<fileset dir="${bin.dir}/" includes="**/*.class" />
+			-->
+			<fileset dir="${bin.dir}/">
+				<include name="**/*.class" />
+				<include name="**/*.*" />
+				<exclude name="**/web.xml" />
+			</fileset>
+
+			<manifest>
+				<attribute name="Main-Class" value="es.pgg.MAIN" />
+			</manifest>
+		</jar>
+
+	</target>
+
+	<target name="jar_lib" depends="compile">
+		<jar destfile="${dist.dir}/${project.file}.jar">
+			<fileset dir="${build.dir}" excludes="**/MAIN.class" />
+			<fileset dir="${lib.dir}" />
+			<manifest>
+				<attribute name="Built-By" value="BY PGG" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="MAIN" depends="compile" description="GUI">
+		<java classname="es.pgg.MAIN" classpath="${bin.dir}" fork="true">
+			<!--
+			<arg value="-o"/>
+			-->
+			<classpath refid="librerias" />
+
+		</java>
+	</target>
+</project>
